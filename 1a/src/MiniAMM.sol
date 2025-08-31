@@ -29,29 +29,46 @@ contract MiniAMM is IMiniAMM, IMiniAMMEvents {
             tokenX = _tokenY;
             tokenY = _tokenX;
         }
-
-        k = 0;
-        xReserve = 0;
-        yReserve = 0;
     }
 
     // add parameters and implement function.
     // this function will determine the initial 'k'.
-    function _addLiquidityFirstTime() internal {}
+    function _addLiquidityFirstTime(uint256 xAmountIn, uint256 yAmountIn) internal {
+        //sender의 지갑에서 x와 y를 각각 뺴온다.
+        IERC20(tokenX).transferFrom(msg.sender, address(this), xAmountIn);
+        IERC20(tokenY).transferFrom(msg.sender, address(this), yAmountIn);
+        
+        //miniAMM에 넣는다.
+        xReserve += xAmountIn;
+        yReserve += yAmountIn;
+        
+        //k를 x*y로 설정한다.
+        k = xReserve * yReserve;
+    }
 
     // add parameters and implement function.
     // this function will increase the 'k'
     // because it is transferring liquidity from users to this contract.
-    function _addLiquidityNotFirstTime() internal {}
+    function _addLiquidityNotFirstTime(uint256 xDelta, uint256 yRequired) internal {
+        //sender의 지갑에서 x와 y를 각각 뺴온다.
+        IERC20(tokenX).transferFrom(msg.sender, address(this), xDelta);
+        IERC20(tokenY).transferFrom(msg.sender, address(this), yRequired);
+        
+        //miniAMM에 넣는다.
+        xReserve += xDelta;
+        yReserve += yRequired;
+
+        k = xReserve * yReserve;
+    }
 
     // complete the function
     function addLiquidity(uint256 xAmountIn, uint256 yAmountIn) external {
         if (k == 0) {
             // add params
-            _addLiquidityFirstTime();
+            _addLiquidityFirstTime(xAmountIn, yAmountIn);
         } else {
             // add params
-            _addLiquidityNotFirstTime();
+            _addLiquidityNotFirstTime(xAmountIn, yAmountIn);
         }
     }
 
