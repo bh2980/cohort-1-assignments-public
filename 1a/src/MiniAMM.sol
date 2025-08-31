@@ -81,6 +81,8 @@ contract MiniAMM is IMiniAMM, IMiniAMMEvents {
             // add params
             _addLiquidityNotFirstTime(xAmountIn, yAmountIn);
         }
+
+        emit AddLiquidity(xAmountIn, yAmountIn);
     }
 
     // complete the function
@@ -104,13 +106,15 @@ contract MiniAMM is IMiniAMM, IMiniAMMEvents {
         );
 
         if (xAmountIn == 0) {
-            uint xRequired = xReserve - (k / (yReserve + yAmountIn));
+            uint256 xRequired = xReserve - (k / (yReserve + yAmountIn));
 
             yReserve += yAmountIn;
             xReserve -= xRequired;
 
             IERC20(tokenY).transferFrom(msg.sender, address(this), yAmountIn);
             IERC20(tokenX).transfer(msg.sender, xRequired);
+
+            emit Swap(yAmountIn, xRequired);
         } else if (yAmountIn == 0) {
             uint256 yRequired = yReserve - (k / (xReserve + xAmountIn));
 
@@ -119,6 +123,8 @@ contract MiniAMM is IMiniAMM, IMiniAMMEvents {
 
             IERC20(tokenX).transferFrom(msg.sender, address(this), xAmountIn);
             IERC20(tokenY).transfer(msg.sender, yRequired);
+
+            emit Swap(xAmountIn, yRequired);
         }
     }
 }
