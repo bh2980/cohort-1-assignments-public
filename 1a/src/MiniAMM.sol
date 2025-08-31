@@ -63,6 +63,8 @@ contract MiniAMM is IMiniAMM, IMiniAMMEvents {
 
     // complete the function
     function addLiquidity(uint256 xAmountIn, uint256 yAmountIn) external {
+        require((xAmountIn != 0) && (yAmountIn != 0), "Amounts must be greater than 0");
+
         if (k == 0) {
             // add params
             _addLiquidityFirstTime(xAmountIn, yAmountIn);
@@ -70,6 +72,7 @@ contract MiniAMM is IMiniAMM, IMiniAMMEvents {
             // add params
             _addLiquidityNotFirstTime(xAmountIn, yAmountIn);
         }
+
     }
 
     // complete the function
