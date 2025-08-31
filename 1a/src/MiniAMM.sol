@@ -15,7 +15,25 @@ contract MiniAMM is IMiniAMM, IMiniAMMEvents {
     address public tokenY;
 
     // implement constructor
-    constructor(address _tokenX, address _tokenY) {}
+    constructor(address _tokenX, address _tokenY) {
+        require(_tokenX != address(0), "tokenX cannot be zero address");
+        require(_tokenY != address(0), "tokenY cannot be zero address");
+
+        require(_tokenX != _tokenY, "Tokens must be different");
+
+        // _tokenX가 더 작은거, _tokenY가 더 큰 걸로 지정해야한다. 
+        if (_tokenX < _tokenY) {
+            tokenX = _tokenX;
+            tokenY = _tokenY;
+        } else {
+            tokenX = _tokenY;
+            tokenY = _tokenX;
+        }
+
+        k = 0;
+        xReserve = 0;
+        yReserve = 0;
+    }
 
     // add parameters and implement function.
     // this function will determine the initial 'k'.
