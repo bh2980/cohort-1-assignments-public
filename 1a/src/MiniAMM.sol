@@ -53,16 +53,24 @@ contract MiniAMM is IMiniAMM, IMiniAMMEvents {
     // this function will increase the 'k'
     // because it is transferring liquidity from users to this contract.
     function _addLiquidityNotFirstTime(
-        uint256 xDelta,
-        uint256 yRequired
+        uint256 xAmountIn,
+        uint256 yAmountIn
     ) internal {
-        //sender의 지갑에서 x와 y를 각각 뺴온다.
-        IERC20(tokenX).transferFrom(msg.sender, address(this), xDelta);
-        IERC20(tokenY).transferFrom(msg.sender, address(this), yRequired);
+        uint256 yRequired = (xAmountIn * yReserve) / xReserve;
+
+        // sender의 지갑에서 x와 y를 각각 뺴온다.
+        IERC20(tokenX).transferFrom(msg.sender, address(this), xAmountIn);
+        IERC20(tokenY).transferFrom(msg.sender, address(this), yAmountIn);
 
         //miniAMM에 넣는다.
-        xReserve += xDelta;
+        xReserve += xAmountIn;
         yReserve += yRequired;
+
+        // 초과분 환불
+        uint256 yExccess = yAmountIn - yRequired;
+        if (yExccess > 0) {
+            IERC20(tokenY).transfer(msg.sender, yExccess);
+        }
 
         k = xReserve * yReserve;
     }
